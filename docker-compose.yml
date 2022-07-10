@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  machine-translation-service-pt-en:
+#    image: mt-service:latest
+    build: .
+    ports:
+      - "1234:1234"
+    links:
+      - machine-translation-celery
+    env_file:
+      - env.dev
+    volumes:
+      - .:/mnt
+    command: >
+      sh -c "python3 -m spacy download en_core_web_sm &&
+             python3 -m spacy download en &&
+             python3 ./main.py"
+
+  machine-translation-celery:
+#    image: mt-service:latest
+    build: .
+    command: celery -A main.celery_app worker -l INFO
+    env_file:
+      - env.dev
+    volumes:
+      - .:/mnt
